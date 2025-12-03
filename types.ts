@@ -1,3 +1,4 @@
+
 export interface Author {
   id: string;
   name: string;
@@ -38,6 +39,31 @@ export interface Journal {
   publisher: string;
   coverImage: string;
   contactEmail: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  affiliation: string;
+  avatar?: string;
+}
+
+export interface LogEntry {
+  id: string;
+  userId: string;
+  userName: string;
+  action: string;
+  details: string;
+  timestamp: string;
+}
+
+export interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+  category: 'author' | 'editor' | 'general';
 }
 
 export type ViewState = 'home' | 'journal' | 'issue' | 'article';

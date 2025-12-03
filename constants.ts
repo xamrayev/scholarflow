@@ -1,4 +1,5 @@
-import { Journal, Issue, Article } from './types';
+
+import { Journal, Issue, Article, User, LogEntry, FAQItem } from './types';
 
 export const MOCK_JOURNALS: Journal[] = [
   {
@@ -93,4 +94,25 @@ export const MOCK_ARTICLES: Article[] = [
     journalId: 'j2',
     status: 'published'
   }
+];
+
+export const MOCK_USERS: User[] = [
+  { id: 'u1', name: 'System Admin', email: 'admin@scholarflow.com', role: 'admin', affiliation: 'ScholarFlow HQ', avatar: 'https://ui-avatars.com/api/?name=System+Admin&background=0D8ABC&color=fff' },
+  { id: 'u2', name: 'Dr. Jane Smith', email: 'jane@mit.edu', role: 'author', affiliation: 'MIT', avatar: 'https://ui-avatars.com/api/?name=Jane+Smith&background=random' },
+  { id: 'u3', name: 'Editor John', email: 'john@journal.org', role: 'editor', affiliation: 'Science Press', avatar: 'https://ui-avatars.com/api/?name=Editor+John&background=random' },
+  { id: 'u4', name: 'Guest User', email: 'guest@example.com', role: 'guest', affiliation: 'Independent', avatar: 'https://ui-avatars.com/api/?name=Guest+User&background=random' },
+];
+
+export const MOCK_LOGS: LogEntry[] = [
+    { id: 'l1', userId: 'u1', userName: 'System Admin', action: 'Create Journal', details: 'Created "Journal of AI"', timestamp: '2024-03-25 10:30 AM' },
+    { id: 'l2', userId: 'u2', userName: 'Dr. Jane Smith', action: 'Submit Article', details: 'Submitted "Transformers..."', timestamp: '2024-03-24 14:15 PM' },
+    { id: 'l3', userId: 'u3', userName: 'Editor John', action: 'Update Issue', details: 'Updated Vol 12, Issue 1', timestamp: '2024-03-23 09:00 AM' },
+    { id: 'l4', userId: 'u1', userName: 'System Admin', action: 'Delete User', details: 'Deleted user "SpamBot"', timestamp: '2024-03-22 16:45 PM' },
+];
+
+export const MOCK_FAQS: FAQItem[] = [
+    { id: 'f1', category: 'general', question: 'How do I subscribe to a journal?', answer: 'You can subscribe by navigating to the journal page and clicking the "Subscribe" button. Some journals are open access and do not require subscription.' },
+    { id: 'f2', category: 'author', question: 'How do I submit an article?', answer: 'Register as an author, navigate to the target journal, and click "Submit Manuscript". You will need to upload a PDF and provide metadata.' },
+    { id: 'f3', category: 'editor', question: 'How do I review submissions?', answer: 'Log in to your dashboard. Pending submissions will appear in your "My Profile" page under "Managed Journals".' },
+    { id: 'f4', category: 'general', question: 'Is the review process double-blind?', answer: 'Yes, most of our journals follow a double-blind peer review process to ensure impartiality.' },
 ];

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { IconMenu, IconArrowBack, IconDarkMode, IconLightMode } from './Icons';
 
@@ -70,7 +71,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({ isOpen, onCl
         onClick={onClose}
       />
       {/* Drawer */}
-      <div className={`fixed top-0 left-0 h-full w-[280px] bg-white dark:bg-gray-900 z-50 shadow-2xl transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed top-0 left-0 h-full w-[280px] max-w-[80vw] bg-white dark:bg-gray-900 z-50 shadow-2xl transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-primary/5">
           <h2 className="text-xl font-bold text-primary dark:text-blue-400">ScholarFlow</h2>
           <p className="text-xs text-gray-500 mt-1">Academic Journal System</p>

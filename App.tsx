@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { HashRouter, Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { TopAppBar, NavigationDrawer } from './components/Layout';
@@ -8,6 +9,8 @@ import { Journal, Issue, Article, Role } from './types';
 import { summarizeContent, semanticSearch } from './services/geminiService';
 import { JournalForm, IssueForm, ArticleForm } from './components/Forms';
 import { SearchPage } from './components/Search';
+import { UserProfile, AdminUserList } from './components/Users';
+import { ErrorPage, AboutPage, FAQPage, ActionLogsPage, DeleteConfirmationPage } from './components/Auxiliary';
 
 // --- Home Page ---
 const HomePage: React.FC<{ role: Role }> = ({ role }) => {
@@ -59,7 +62,9 @@ const HomePage: React.FC<{ role: Role }> = ({ role }) => {
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       {/* Admin Quick Action */}
       {role === 'admin' && (
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-3">
+              <Button onClick={() => navigate('/admin/logs')} variant="text">View Logs</Button>
+              <Button onClick={() => navigate('/admin/users')} variant="outlined">Manage Users</Button>
               <Button onClick={() => navigate('/admin/journal/new')} variant="filled">+ Add New Journal</Button>
           </div>
       )}
@@ -312,6 +317,14 @@ const IssuePage: React.FC<{ role: Role }> = ({ role }) => {
                          Edit Article
                      </button>
                  )}
+                 {(role === 'admin' || role === 'editor') && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); navigate(`/confirm-delete/article/${article.id}`); }}
+                        className="absolute top-4 right-20 text-xs text-red-400 hover:text-red-600 z-10"
+                      >
+                          Delete
+                      </button>
+                 )}
                 <div className="flex flex-col md:flex-row gap-4 justify-between">
                    <div className="flex-grow">
                      <div className="flex gap-2 mb-2">
@@ -343,6 +356,7 @@ const IssuePage: React.FC<{ role: Role }> = ({ role }) => {
 // --- Article Page ---
 const ArticlePage: React.FC<{ role: Role }> = ({ role }) => {
   const { articleId } = useParams();
+  const navigate = useNavigate();
   const article = MOCK_ARTICLES.find(a => a.id === articleId);
   const journal = MOCK_JOURNALS.find(j => j.id === article?.journalId);
   const [summary, setSummary] = useState<string | null>(null);
@@ -368,7 +382,12 @@ const ArticlePage: React.FC<{ role: Role }> = ({ role }) => {
              <span>&bull;</span>
              <span>pp. {article.pageRange}</span>
              {(role === 'editor' || role === 'admin') && (
-                 <span className="text-red-500 cursor-pointer ml-auto" onClick={() => alert('Delete logic here')}>Delete Article</span>
+                 <span 
+                    className="text-red-500 cursor-pointer ml-auto hover:underline" 
+                    onClick={() => navigate(`/confirm-delete/article/${articleId}`)}
+                 >
+                    Delete Article
+                 </span>
              )}
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">{article.title}</h1>
@@ -493,15 +512,48 @@ interface NavigationDrawerProps {
             >
                <span>Search Articles</span>
             </button>
+            <button 
+              onClick={() => { navigate('/about'); onClose(); }}
+              className="w-full flex items-center gap-4 p-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+               <span>About Us</span>
+            </button>
+            <button 
+              onClick={() => { navigate('/faq'); onClose(); }}
+              className="w-full flex items-center gap-4 p-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+               <span>FAQ</span>
+            </button>
+            
             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                User Tools
             </div>
-            <button className="w-full flex items-center gap-4 p-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-               Saved Articles
-            </button>
-            <button className="w-full flex items-center gap-4 p-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-               My Submissions
-            </button>
+            
+            {(role === 'author' || role === 'editor' || role === 'admin') && (
+                <button 
+                    onClick={() => { navigate('/profile'); onClose(); }}
+                    className="w-full flex items-center gap-4 p-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                    <span>My Profile</span>
+                </button>
+            )}
+            
+            {role === 'admin' && (
+                <>
+                <button 
+                    onClick={() => { navigate('/admin/users'); onClose(); }}
+                    className="w-full flex items-center gap-4 p-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                    <span>User Management</span>
+                </button>
+                <button 
+                    onClick={() => { navigate('/admin/logs'); onClose(); }}
+                    className="w-full flex items-center gap-4 p-3 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                    <span>System Logs</span>
+                </button>
+                </>
+            )}
             
             {/* Role Switcher for Demo */}
             <div className="mt-8 pt-4 border-t border-gray-100 dark:border-gray-800">
@@ -549,6 +601,12 @@ const AppContent: React.FC = () => {
     if (location.pathname.includes('/issue/')) return 'Issue Details';
     if (location.pathname.includes('/journal/')) return 'Journal Profile';
     if (location.pathname.includes('/search')) return 'Advanced Search';
+    if (location.pathname.includes('/profile')) return 'My Profile';
+    if (location.pathname.includes('/admin/users')) return 'User Management';
+    if (location.pathname.includes('/admin/logs')) return 'System Logs';
+    if (location.pathname.includes('/about')) return 'About Us';
+    if (location.pathname.includes('/faq')) return 'FAQ';
+    if (location.pathname.includes('/confirm-delete')) return 'Confirm Deletion';
     return 'ScholarFlow';
   };
 
@@ -582,6 +640,11 @@ const AppContent: React.FC = () => {
           <Route path="/journal/:journalId/issue/:issueId" element={<IssuePage role={role} />} />
           <Route path="/journal/:journalId/issue/:issueId/article/:articleId" element={<ArticlePage role={role} />} />
           
+          {/* User & Admin Routes */}
+          <Route path="/profile" element={<UserProfile role={role} />} />
+          <Route path="/admin/users" element={<AdminUserList />} />
+          <Route path="/admin/logs" element={<ActionLogsPage />} />
+          
           {/* Form Routes */}
           <Route path="/admin/journal/new" element={<JournalForm />} />
           <Route path="/admin/journal/:journalId/edit" element={<JournalForm isEdit />} />
@@ -589,6 +652,14 @@ const AppContent: React.FC = () => {
           <Route path="/admin/journal/:journalId/issue/:issueId/edit" element={<IssueForm isEdit />} />
           <Route path="/journal/:journalId/submit" element={<ArticleForm />} />
           <Route path="/submit/:articleId" element={<ArticleForm isEdit />} />
+          
+          {/* Auxiliary Routes */}
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/confirm-delete/:resourceType/:resourceId" element={<DeleteConfirmationPage />} />
+          
+          {/* Error Routes */}
+          <Route path="*" element={<ErrorPage code="404" title="Page Not Found" message="The page you are looking for does not exist or has been moved." />} />
         </Routes>
       </main>
 
@@ -596,8 +667,9 @@ const AppContent: React.FC = () => {
       <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 text-center text-sm text-gray-500">
          <p>&copy; 2024 ScholarFlow. All rights reserved.</p>
          <div className="flex justify-center gap-4 mt-2">
+             <span onClick={() => navigate('/about')} className="hover:text-primary cursor-pointer">About</span>
+             <span onClick={() => navigate('/faq')} className="hover:text-primary cursor-pointer">Help</span>
              <span className="hover:text-primary cursor-pointer">Privacy Policy</span>
-             <span className="hover:text-primary cursor-pointer">Terms of Service</span>
          </div>
       </footer>
     </div>

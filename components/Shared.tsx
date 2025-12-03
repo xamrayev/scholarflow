@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 
 // --- Card ---
@@ -14,7 +15,7 @@ export const Card: React.FC<{ children: React.ReactNode; className?: string; onC
 
 // --- Buttons ---
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'filled' | 'outlined' | 'text' | 'tonal';
+  variant?: 'filled' | 'outlined' | 'text' | 'tonal' | 'danger';
   icon?: React.ReactNode;
 }
 
@@ -25,7 +26,8 @@ export const Button: React.FC<ButtonProps> = ({ children, variant = 'filled', ic
     filled: "bg-primary text-white hover:bg-primary-dark shadow-sm",
     outlined: "border border-gray-300 dark:border-gray-600 text-primary dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-white/5",
     text: "text-primary dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-3",
-    tonal: "bg-blue-100 text-blue-900 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-100"
+    tonal: "bg-blue-100 text-blue-900 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-100",
+    danger: "bg-red-600 text-white hover:bg-red-700 shadow-sm"
   };
 
   return (
@@ -226,3 +228,31 @@ export const Chip: React.FC<{ label: string; active?: boolean; onClick?: () => v
     )}
   </div>
 );
+
+// --- Accordion ---
+interface AccordionProps {
+    title: string;
+    children: React.ReactNode;
+}
+
+export const Accordion: React.FC<AccordionProps> = ({ title, children }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+        <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden mb-2">
+            <button 
+                className="w-full flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-left"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span className="font-semibold text-gray-900 dark:text-white">{title}</span>
+                <span className={`transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="currentColor"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg>
+                </span>
+            </button>
+            <div 
+                className={`bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 p-4 border-t border-gray-200 dark:border-gray-700' : 'max-h-0'}`}
+            >
+                {children}
+            </div>
+        </div>
+    );
+};
